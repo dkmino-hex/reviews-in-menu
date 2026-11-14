@@ -1,0 +1,25 @@
+:root {
+  font-family: system-ui, sans-serif;
+  color: #211d18;
+  background: #faf8f3;
+  line-height: 1.5;
+}
+body { margin: 0; }
+header { background: #fff; border-bottom: 1px solid #ded6c8; }
+main, nav { max-width: 64rem; margin: 0 auto; padding: 1rem; }
+nav, .actions, .filters { display: flex; gap: .75rem 1rem; flex-wrap: wrap; align-items: center; }
+.brand { font-weight: 750; margin-right: auto; }
+h1, h2, h3 { line-height: 1.15; }
+a { color: #713b24; }
+button, input, textarea, select { font: inherit; padding: .45rem .65rem; max-width: 100%; box-sizing: border-box; }
+button { cursor: pointer; }
+button[aria-pressed="true"] { background: #713b24; color: white; }
+label { display: grid; gap: .25rem; }
+.stack { display: grid; gap: .75rem; }
+.narrow { max-width: 30rem; }
+.cards { list-style: none; padding: 0; display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); }
+.cards li { background: white; border: 1px solid #ded6c8; border-radius: .5rem; padding: 1rem; }
+.cards img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.dish-photo { width: min(100%, 32rem); display: block; margin: .75rem 0; }
+section { margin-top: 1.5rem; }
+[role="alert"] { color: #8a1b1b; }

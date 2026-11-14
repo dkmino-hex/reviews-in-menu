@@ -1,0 +1,46 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: infra/web.Dockerfile
+    ports:
+      - "127.0.0.1:8080:80"
+    depends_on:
+      - api
+
+  api:
+    build: ./backend
+    environment:
+      HTTP_ADDR: "0.0.0.0:8081"
+      COOKIE_SECURE: "false"
+      PGHOST: postgres
+      PGUSER: reviews
+      PGDATABASE: reviews
+      PGSSLMODE: disable
+      PGPASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}"
+      PHOTO_DIR: /photos
+    volumes:
+      - photos:/photos
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:17-bookworm
+    environment:
+      POSTGRES_DB: reviews
+      POSTGRES_USER: reviews
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U reviews -d reviews"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+    ports:
+      - "127.0.0.1:5433:5432"
+
+volumes:
+  postgres_data:
+  photos:

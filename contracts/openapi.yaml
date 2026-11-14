@@ -1,0 +1,557 @@
+openapi: "3.1.0"
+info:
+  title: "Reviews in menu API"
+  version: "0.2.0"
+servers: [{"url":"/api/v1"}]
+paths:
+  "/health":
+    get:
+      operationId: "getHealth"
+      responses:
+        "200":
+          description: "Успешный ответ"
+          content:
+            "application/json":
+              schema:
+                type: "object"
+                properties:
+                  status:
+                    const: "ok"
+                required: ["status"]
+        default:
+          description: "Ошибка запроса"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/categories":
+    get:
+      operationId: "listCategories"
+      responses:
+        "200":
+          description: "Успешный ответ"
+          content:
+            "application/json":
+              schema:
+                type: "array"
+                items:
+                  "$ref": "#/components/schemas/Category"
+        default:
+          description: "Ошибка запроса"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/dishes":
+    get:
+      operationId: "listDishes"
+      parameters: [{"name":"q","in":"query","required":false,"schema":{"type":"string"}},{"name":"category","in":"query","required":false,"schema":{"type":"integer","minimum":1}},{"name":"page","in":"query","required":false,"schema":{"type":"integer","minimum":1}}]
+      responses:
+        "200":
+          description: "Успешный ответ"
+          content:
+            "application/json":
+              schema:
+                type: "object"
+                properties:
+                  items:
+                    type: "array"
+                    items:
+                      "$ref": "#/components/schemas/Dish"
+                  has_more:
+                    type: "boolean"
+                required: ["items","has_more"]
+        default:
+          description: "Ошибка запроса"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/dishes/{id}":
+    get:
+      operationId: "getDish"
+      parameters: [{"name":"id","in":"path","required":true,"schema":{"type":"integer","minimum":1}}]
+      responses:
+        "200":
+          description: "Успешный ответ"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Dish"
+        default:
+          description: "Ошибка запроса"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/photos/{key}":
+    get:
+      operationId: "getPhoto"
+      parameters: [{"name":"key","in":"path","required":true,"schema":{"type":"string"}}]
+      responses:
+        "200":
+          description: "Фотография"
+          content:
+            "image/jpeg": {}
+            "image/png": {}
+        default:
+          description: "Ошибка запроса"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/auth/register":
+    post:
+      operationId: "register"
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              type: "object"
+              properties:
+                login:
+                  type: "string"
+                name:
+                  type: "string"
+                password:
+                  type: "string"
+              required: ["login","name","password"]
+      responses:
+        "201":
+          description: "Успешный ответ"
+        default:
+          description: "Ошибка запроса"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/auth/login":
+    post:
+      operationId: "login"
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              type: "object"
+              properties:
+                login:
+                  type: "string"
+                password:
+                  type: "string"
+              required: ["login","password"]
+      responses:
+        "200":
+          description: "Успешный ответ"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/User"
+        default:
+          description: "Ошибка запроса"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/auth/logout":
+    post:
+      operationId: "logout"
+      security: [{"session":[]}]
+      responses:
+        "204":
+          description: "Успешный ответ"
+        default:
+          description: "Ошибка запроса"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/me":
+    get:
+      operationId: "getProfile"
+      security: [{"session":[]}]
+      responses:
+        "200":
+          description: "Успешный ответ"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/User"
+        default:
+          description: "Ошибка запроса"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Error"
+    patch:
+      operationId: "updateProfile"
+      security: [{"session":[]}]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              type: "object"
+              properties:
+                name:
+                  type: "string"
+                currentPassword:
+                  type: "string"
+                newPassword:
+                  type: "string"
+              required: ["name"]
+      responses:
+        "204":
+          description: "Успешный ответ"
+        default:
+          description: "Ошибка запроса"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/admin/categories":
+    post:
+      operationId: "createcategories"
+      security: [{"session":[]}]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              type: "object"
+              properties:
+                name:
+                  type: "string"
+              required: ["name"]
+      responses:
+        "200":
+          description: "Успешный ответ"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Category"
+        default:
+          description: "Ошибка запроса"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/admin/categories/{id}":
+    put:
+      operationId: "updatecategories"
+      parameters: [{"name":"id","in":"path","required":true,"schema":{"type":"integer","minimum":1}}]
+      security: [{"session":[]}]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              type: "object"
+              properties:
+                name:
+                  type: "string"
+              required: ["name"]
+      responses:
+        "200":
+          description: "Успешный ответ"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Category"
+        default:
+          description: "Ошибка запроса"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/admin/dishes":
+    post:
+      operationId: "createdishes"
+      security: [{"session":[]}]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              "$ref": "#/components/schemas/DishInput"
+      responses:
+        "200":
+          description: "Успешный ответ"
+          content:
+            "application/json":
+              schema:
+                type: "object"
+                properties:
+                  id:
+                    type: "integer"
+                    minimum: 1
+                required: ["id"]
+        default:
+          description: "Ошибка запроса"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/admin/dishes/{id}":
+    put:
+      operationId: "updatedishes"
+      parameters: [{"name":"id","in":"path","required":true,"schema":{"type":"integer","minimum":1}}]
+      security: [{"session":[]}]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              "$ref": "#/components/schemas/DishInput"
+      responses:
+        "200":
+          description: "Успешный ответ"
+          content:
+            "application/json":
+              schema:
+                type: "object"
+                properties:
+                  id:
+                    type: "integer"
+                    minimum: 1
+                required: ["id"]
+        default:
+          description: "Ошибка запроса"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/admin/dishes/{id}/photo":
+    put:
+      operationId: "uploadPhoto"
+      parameters: [{"name":"id","in":"path","required":true,"schema":{"type":"integer","minimum":1}}]
+      security: [{"session":[]}]
+      requestBody:
+        required: true
+        content:
+          "image/jpeg": {}
+          "image/png": {}
+      responses:
+        "204":
+          description: "Успешный ответ"
+        default:
+          description: "Ошибка запроса"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Error"
+    delete:
+      operationId: "removePhoto"
+      parameters: [{"name":"id","in":"path","required":true,"schema":{"type":"integer","minimum":1}}]
+      security: [{"session":[]}]
+      responses:
+        "204":
+          description: "Успешный ответ"
+        default:
+          description: "Ошибка запроса"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/admin/visitors":
+    get:
+      operationId: "listVisitors"
+      parameters: [{"name":"page","in":"query","required":false,"schema":{"type":"integer","minimum":1}}]
+      security: [{"session":[]}]
+      responses:
+        "200":
+          description: "Успешный ответ"
+          content:
+            "application/json":
+              schema:
+                type: "object"
+                properties:
+                  items:
+                    type: "array"
+                    items:
+                      "$ref": "#/components/schemas/Visitor"
+                  has_more:
+                    type: "boolean"
+                required: ["items","has_more"]
+        default:
+          description: "Ошибка запроса"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/admin/visitors/{id}":
+    patch:
+      operationId: "setVisitorBlocked"
+      parameters: [{"name":"id","in":"path","required":true,"schema":{"type":"integer","minimum":1}}]
+      security: [{"session":[]}]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              type: "object"
+              properties:
+                blocked:
+                  type: "boolean"
+                reason:
+                  type: "string"
+              required: ["blocked","reason"]
+      responses:
+        "204":
+          description: "Успешный ответ"
+        default:
+          description: "Ошибка запроса"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/admin/audit":
+    get:
+      operationId: "listAudit"
+      parameters: [{"name":"page","in":"query","required":false,"schema":{"type":"integer","minimum":1}},{"name":"entity","in":"query","required":false,"schema":{"type":"string"}},{"name":"since","in":"query","required":false,"schema":{"type":"string","format":"date"}}]
+      security: [{"session":[]}]
+      responses:
+        "200":
+          description: "Успешный ответ"
+          content:
+            "application/json":
+              schema:
+                type: "object"
+                properties:
+                  items:
+                    type: "array"
+                    items:
+                      "$ref": "#/components/schemas/AuditEvent"
+                  has_more:
+                    type: "boolean"
+                required: ["items","has_more"]
+        default:
+          description: "Ошибка запроса"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Error"
+components:
+  securitySchemes:
+    session:
+      type: "apiKey"
+      in: "cookie"
+      name: "reviews_session"
+  schemas:
+    Error:
+      type: "object"
+      properties:
+        error:
+          type: "string"
+      required: ["error"]
+    Category:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          minimum: 1
+        name:
+          type: "string"
+      required: ["id","name"]
+    DishInput:
+      type: "object"
+      properties:
+        category_id:
+          type: "integer"
+          minimum: 1
+        name:
+          type: "string"
+        description:
+          type: "string"
+        ingredients:
+          type: "string"
+        price:
+          type: "string"
+        portion:
+          type: ["string","null"]
+        unit:
+          enum: ["g","ml",null]
+        aliases:
+          type: "array"
+          items:
+            type: "string"
+      required: ["category_id","name","price"]
+    Dish:
+      type: "object"
+      properties:
+        category_id:
+          type: "integer"
+          minimum: 1
+        name:
+          type: "string"
+        description:
+          type: "string"
+        ingredients:
+          type: "string"
+        price:
+          type: "string"
+        portion:
+          type: ["string","null"]
+        unit:
+          enum: ["g","ml",null]
+        aliases:
+          type: "array"
+          items:
+            type: "string"
+        id:
+          type: "integer"
+          minimum: 1
+        photo:
+          type: ["string","null"]
+      required: ["category_id","name","description","ingredients","price","portion","unit","aliases","id","photo"]
+    User:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          minimum: 1
+        login:
+          type: "string"
+        name:
+          type: "string"
+        role:
+          enum: ["visitor","admin"]
+      required: ["id","login","name","role"]
+    Visitor:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          minimum: 1
+        login:
+          type: "string"
+        name:
+          type: "string"
+        role:
+          enum: ["visitor","admin"]
+        blocked:
+          type: "boolean"
+      required: ["id","login","name","role","blocked"]
+    AuditEvent:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          minimum: 1
+        actor_id:
+          type: "integer"
+          minimum: 1
+        action:
+          type: "string"
+        entity_type:
+          type: "string"
+        entity_id:
+          type: "integer"
+          minimum: 1
+        details:
+          type: "object"
+        created_at:
+          type: "string"
+          format: "date-time"
+      required: ["id","actor_id","action","entity_type","entity_id","details","created_at"]
