@@ -34,6 +34,7 @@ func New(db *pgxpool.Pool, photos string, secure bool) http.Handler {
 	})
 	s.catalogRoutes(mux)
 	s.accountRoutes(mux)
+	s.reviewRoutes(mux)
 	return http.NewCrossOriginProtection().Handler(mux)
 }
 

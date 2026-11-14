@@ -84,6 +84,50 @@ paths:
             "application/json":
               schema:
                 "$ref": "#/components/schemas/Error"
+  "/dishes/{id}/reviews":
+    post:
+      operationId: "createReview"
+      security: [{"session":[]}]
+      parameters: [{"name":"id","in":"path","required":true,"schema":{"type":"integer","minimum":1}}]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              type: "object"
+              properties:
+                rating:
+                  type: "integer"
+                  minimum: 1
+                  maximum: 5
+                body:
+                  type: "string"
+              required: ["rating"]
+              additionalProperties: false
+      responses:
+        "201":
+          description: "Отзыв создан"
+          content:
+            "application/json":
+              schema:
+                type: "object"
+                properties:
+                  id:
+                    type: "integer"
+                    minimum: 1
+                required: ["id"]
+        "409":
+          description: "Посетитель уже оставил отзыв на это блюдо"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Error"
+        default:
+          description: "Ошибка запроса"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Error"
   "/photos/{key}":
     get:
       operationId: "getPhoto"
