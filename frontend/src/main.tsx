@@ -4,6 +4,8 @@ import { api, APIError, message, type User } from "./api/client";
 import { Auth, Profile } from "./pages/Account";
 import { Admin } from "./pages/Admin";
 import { DishPage, Menu } from "./pages/Menu";
+import "@fontsource-variable/cormorant-garamond";
+import "@fontsource-variable/geist";
 import "./style.css";
 
 function App() {
