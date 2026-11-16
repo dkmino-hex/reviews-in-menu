@@ -35,6 +35,7 @@ func New(db *pgxpool.Pool, photos string, secure bool) http.Handler {
 	s.catalogRoutes(mux)
 	s.accountRoutes(mux)
 	s.reviewRoutes(mux)
+	mux.HandleFunc("GET /api/v1/admin/rating-analytics", s.ratingAnalytics)
 	return http.NewCrossOriginProtection().Handler(mux)
 }
 

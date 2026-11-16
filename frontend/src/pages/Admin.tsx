@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { api, json, message, type AuditEvent, type Category, type Dish, type Page, type Visitor } from "../api/client";
 import { Pagination } from "./Pagination";
+import { RatingAnalytics } from "./RatingAnalytics";
 import { ReviewManagement } from "./Reviews";
 
 export function Admin() {
@@ -8,10 +9,11 @@ export function Admin() {
   return <>
     <h1>Управление рестораном</h1>
     <div className="actions" aria-label="Разделы кабинета">
-      {Object.entries({ menu: "Меню", reviews: "Отзывы", visitors: "Посетители", audit: "Журнал" }).map(([key, title]) =>
+      {Object.entries({ menu: "Меню", reviews: "Отзывы", analytics: "Аналитика", visitors: "Посетители", audit: "Журнал" }).map(([key, title]) =>
         <button key={key} aria-pressed={section === key} onClick={() => setSection(key)}>{title}</button>)}
     </div>
     {section === "menu" ? <EditMenu /> : section === "reviews" ? <ReviewManagement admin /> :
+      section === "analytics" ? <RatingAnalytics /> :
       <AdminList key={section} visitors={section === "visitors"} />}
   </>;
 }

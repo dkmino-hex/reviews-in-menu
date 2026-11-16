@@ -25,6 +25,59 @@ section { margin-top: 1.5rem; }
 .review-list h3, .review-list p { margin: .5rem 0; }
 .review-body { white-space: pre-wrap; overflow-wrap: anywhere; }
 
+.analytics-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+  align-items: end;
+  gap: .75rem;
+}
+.analytics-filters label { min-width: 0; font-size: .875rem; font-weight: 600; }
+.analytics-filters :is(input, select, button) {
+  min-width: 0;
+  min-height: 2.6rem;
+  border: 1px solid #bcae9e;
+  border-radius: .5rem;
+  background: #fffdf9;
+  color: #2b1a07;
+}
+.analytics-filters button { background: #713b24; color: white; font-weight: 600; }
+.analytics-note { color: #725845; font-size: .875rem; }
+.analytics-summary { display: flex; flex-wrap: wrap; gap: .75rem; }
+.analytics-summary div, .analytics-chart {
+  padding: .9rem 1rem;
+  border: 1px solid #ded6c8;
+  border-radius: .75rem;
+  background: #fffdf9;
+}
+.analytics-summary dt { color: #725845; font-size: .875rem; }
+.analytics-summary dd { margin: 0; font: 700 2rem/1.3 Georgia, serif; }
+.analytics-scroll { overflow: auto; }
+.rating-analytics table { width: 100%; border-collapse: collapse; background: #fffdf9; }
+.rating-analytics caption, .analytics-chart figcaption { text-align: left; font-weight: 700; margin-bottom: .6rem; }
+.rating-analytics :is(th, td) { padding: .45rem .65rem; text-align: left; border-bottom: 1px solid #ded6c8; }
+.rating-analytics tbody th { font-weight: 500; }
+.analytics-charts { display: grid; gap: .75rem; margin-top: 1rem; }
+.analytics-chart { min-width: 0; margin: 0; }
+.analytics-plot { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(2.5rem, 1fr); }
+.analytics-column { display: grid; gap: .3rem; text-align: center; color: #725845; font-size: .7rem; }
+.analytics-bar-track {
+  height: 7.5rem;
+  padding-inline: .3rem;
+  border-bottom: 1px solid #bcae9e;
+  display: flex;
+  align-items: flex-end;
+}
+.analytics-bar {
+  position: relative;
+  width: min(100%, 3rem);
+  margin-inline: auto;
+  min-height: .15rem;
+  border-radius: .3rem .3rem 0 0;
+  background: #b65322;
+  color: #fff;
+}
+.analytics-bar span { position: absolute; inset: .1rem 0 auto; }
+
 .menu-book {
   --menu-paper: #fdfbf9;
   --menu-tint: #f7efe9;
