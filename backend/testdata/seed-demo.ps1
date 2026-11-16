@@ -11,7 +11,7 @@ try {
         docker compose cp $file "api:/photos/$key"
         if ($LASTEXITCODE -ne 0) { throw "Не удалось загрузить $file" }
     }
-    foreach ($fixture in 'menu.sql', 'analytics-demo.sql') {
+    foreach ($fixture in 'menu.sql', 'analytics-demo.sql', 'opinion-demo.sql') {
         Get-Content -Raw -Encoding utf8 -LiteralPath (Join-Path $PSScriptRoot $fixture) |
             docker compose exec -T postgres psql -v ON_ERROR_STOP=1 -U reviews -d reviews
         if ($LASTEXITCODE -ne 0) { throw "Не удалось применить $fixture" }

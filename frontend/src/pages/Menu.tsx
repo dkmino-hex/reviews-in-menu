@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { api, json, message, type Category, type Dish, type Page, type User } from "../api/client";
 import { Pagination } from "./Pagination";
 import { DishReviews, ReviewForm } from "./Reviews";
+import { Opinions } from "./Opinions";
 
 const prices = new Intl.NumberFormat("ru-RU", {
   style: "currency", currency: "RUB", minimumFractionDigits: 0,
 });
 const ratings = new Intl.NumberFormat("ru-RU", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
-function DishFeedback({ dish, excerpt = true }: { dish: Dish; excerpt?: boolean }) {
+function DishFeedback({ dish }: { dish: Dish }) {
   return <>
     <p className="menu-rating">
       <span aria-hidden="true">★</span>{" "}
@@ -17,10 +18,7 @@ function DishFeedback({ dish, excerpt = true }: { dish: Dish; excerpt?: boolean 
         <span className="menu-rating-count"> · всего {dish.rating_count}</span>
       </>}
     </p>
-    {excerpt && (dish.review_excerpt ? <figure className="menu-opinion">
-      <figcaption>Из отзывов</figcaption>
-      <blockquote><p>«{dish.review_excerpt}»</p></blockquote>
-    </figure> : <p className="menu-no-opinion">Пока нет комментариев</p>)}
+    <Opinions summary={dish.opinions} />
   </>;
 }
 
@@ -104,7 +102,7 @@ export function DishPage({ id, user }: { id: string; user: User | null | undefin
       <p>{dish.description}</p>
       {dish.ingredients && <p><strong>Состав</strong> {dish.ingredients}</p>}
       <p>{dish.price} ₽ {dish.portion && ` · ${dish.portion} ${dish.unit === "g" ? "г" : "мл"}`}</p>
-      <DishFeedback dish={dish} excerpt={false} />
+      <DishFeedback dish={dish} />
       {user?.role === "visitor" && <section>
         <ReviewForm submit={input => json(`/dishes/${dish.id}/reviews`, "POST", input)} saved={() => setRevision(n => n + 1)} />
         <p><a href="#/profile">Мои отзывы</a></p>

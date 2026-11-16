@@ -1,6 +1,7 @@
 package httpapi
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 	"regexp"
@@ -31,19 +32,34 @@ type dishInput struct {
 
 type dish struct {
 	dishInput
-	ID            int64    `json:"id"`
-	Photo         *string  `json:"photo"`
-	AverageRating *float64 `json:"average_rating"`
-	RatingCount   int64    `json:"rating_count"`
-	ReviewExcerpt *string  `json:"review_excerpt"`
+	ID            int64           `json:"id"`
+	Photo         *string         `json:"photo"`
+	AverageRating *float64        `json:"average_rating"`
+	RatingCount   int64           `json:"rating_count"`
+	ReviewExcerpt *string         `json:"review_excerpt"`
+	Opinions      json.RawMessage `json:"opinions"`
 }
+
+const opinionPeriod = `created_at >= (((now() AT TIME ZONE 'Europe/Moscow')::date-29)::timestamp AT TIME ZONE 'Europe/Moscow')
+    AND created_at <= now()`
 
 const dishColumns = `d.id,d.category_id,d.name,d.description,d.ingredients,d.price::text,d.portion_value::text,d.portion_unit,d.image_key,
     ARRAY(SELECT alias FROM dish_alias WHERE dish_id=d.id ORDER BY alias),
     ratings.average, ratings.count,
     (SELECT CASE WHEN char_length(r.body)>160 THEN left(r.body,160)||'…' ELSE r.body END
      FROM review r WHERE r.dish_id=d.id AND r.publication_state='published' AND r.body<>''
-     ORDER BY r.created_at DESC,r.id DESC LIMIT 1)`
+     ORDER BY r.created_at DESC,r.id DESC LIMIT 1),
+    json_build_object(
+        'sample', (SELECT count(*) FROM published_review_sentiment WHERE dish_id=d.id AND ` + opinionPeriod + `),
+        'tones', (SELECT coalesce(json_object_agg(tone,n),'{}'::json) FROM (
+            SELECT tone,count(*) AS n FROM published_review_sentiment WHERE dish_id=d.id AND ` + opinionPeriod + `
+            GROUP BY tone
+        ) counts),
+        'highlights', (SELECT coalesce(json_agg(p ORDER BY p.count DESC,p.label,p.tone),'[]'::json) FROM (
+            SELECT label,tone,count(*) AS count FROM published_review_opinion WHERE dish_id=d.id AND ` + opinionPeriod + `
+            GROUP BY label,tone ORDER BY count DESC,label,tone LIMIT 3
+        ) p)
+    )`
 
 const dishSource = ` FROM dish d CROSS JOIN LATERAL (
     SELECT avg(r.rating)::float8 AS average, count(*) AS count
@@ -52,7 +68,7 @@ const dishSource = ` FROM dish d CROSS JOIN LATERAL (
 
 func readDish(row pgx.CollectableRow) (dish, error) {
 	var d dish
-	err := row.Scan(&d.ID, &d.CategoryID, &d.Name, &d.Description, &d.Ingredients, &d.Price, &d.Portion, &d.Unit, &d.Photo, &d.Aliases, &d.AverageRating, &d.RatingCount, &d.ReviewExcerpt)
+	err := row.Scan(&d.ID, &d.CategoryID, &d.Name, &d.Description, &d.Ingredients, &d.Price, &d.Portion, &d.Unit, &d.Photo, &d.Aliases, &d.AverageRating, &d.RatingCount, &d.ReviewExcerpt, &d.Opinions)
 	if d.Photo != nil {
 		*d.Photo = "/api/v1/photos/" + *d.Photo
 	}

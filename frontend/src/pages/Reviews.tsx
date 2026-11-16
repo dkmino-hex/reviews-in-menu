@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { api, json, message, type ManagedReview, type Page, type Review } from "../api/client";
 import { Pagination } from "./Pagination";
+import { ReviewTone } from "./Opinions";
 
 const dates = new Intl.DateTimeFormat("ru-RU", { dateStyle: "medium" });
 const states = { published: "Опубликован", hidden: "Скрыт", archived: "В архиве" };
@@ -81,7 +82,9 @@ export function DishReviews({ dishID }: { dishID: number }) {
     {error ? <p role="alert">{error}</p> : !result ? <p role="status">Загружаем отзывы…</p> : <>
       {result.items.length === 0 ? <p>Пока нет комментариев.</p> : <ul className="review-list">
         {result.items.map(review => <li key={review.id}>
-          <p><strong>{review.rating} из 5</strong> · {dates.format(new Date(review.created_at))}</p>
+          <p className="actions"><strong>{review.rating} из 5</strong><span>{dates.format(new Date(review.created_at))}</span>
+            {review.tone && <ReviewTone tone={review.tone} />}
+          </p>
           <p className="review-body">{review.body}</p>
         </li>)}
       </ul>}
