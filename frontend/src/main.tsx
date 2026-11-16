@@ -47,7 +47,7 @@ function App() {
             : !user ? <p><a href="#/login">Войдите в аккаунт</a></p>
             : route === "/profile" ? <Profile user={user} onUpdate={setUser} />
             : user.role === "admin" ? <Admin /> : <p>Доступно администратору.</p>
-        ) : id ? <DishPage key={id} id={id} /> : <Menu />}
+        ) : id ? <DishPage key={id} id={id} user={user} /> : <Menu />}
     </main>
   </>;
 }

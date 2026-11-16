@@ -85,6 +85,36 @@ paths:
               schema:
                 "$ref": "#/components/schemas/Error"
   "/dishes/{id}/reviews":
+    get:
+      operationId: listDishReviews
+      parameters: [{"name":"id","in":"path","required":true,"schema":{"type":"integer","minimum":1}},{"name":"page","in":"query","schema":{"type":"integer","minimum":1,"maximum":10000,"default":1}}]
+      responses:
+        "200":
+          description: "Страница отзывов"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                required: ["items","has_more"]
+                properties:
+                  items:
+                    type: "array"
+                    items:
+                      $ref: "#/components/schemas/Review"
+                  has_more:
+                    type: "boolean"
+        "400":
+          description: "Некорректная страница"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: "Блюдо не найдено"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     post:
       operationId: "createReview"
       security: [{"session":[]}]
@@ -102,6 +132,7 @@ paths:
                   maximum: 5
                 body:
                   type: "string"
+                  maxLength: 3000
               required: ["rating"]
               additionalProperties: false
       responses:
@@ -116,8 +147,32 @@ paths:
                     type: "integer"
                     minimum: 1
                 required: ["id"]
+        "400":
+          description: "Некорректная оценка или комментарий"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: "Требуется действующий сеанс"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: "Отзывы могут оставлять только посетители"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: "Блюдо не найдено"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         "409":
-          description: "Посетитель уже оставил отзыв на это блюдо"
+          description: "Есть действующий отзыв или действует ограничение модерации"
           content:
             "application/json":
               schema:
@@ -128,6 +183,252 @@ paths:
             "application/json":
               schema:
                 "$ref": "#/components/schemas/Error"
+  "/me/reviews":
+    get:
+      operationId: listMyReviews
+      security: [{"session":[]}]
+      parameters: [{"name":"page","in":"query","schema":{"type":"integer","minimum":1,"maximum":10000,"default":1}}]
+      responses:
+        "200":
+          description: "Страница отзывов"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                required: ["items","has_more"]
+                properties:
+                  items:
+                    type: "array"
+                    items:
+                      $ref: "#/components/schemas/ManagedReview"
+                  has_more:
+                    type: "boolean"
+        "400":
+          description: "Некорректные данные"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: "Требуется действующий сеанс"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: "Недостаточно прав"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  "/me/reviews/{id}":
+    patch:
+      operationId: editMyReview
+      security: [{"session":[]}]
+      parameters: [{"name":"id","in":"path","required":true,"schema":{"type":"integer","minimum":1}}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReviewChange"
+      responses:
+        "204":
+          description: "Отзыв изменён"
+        "400":
+          description: "Некорректные данные"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: "Требуется действующий сеанс"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: "Недостаточно прав"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: "Отзыв не найден"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: "Версия устарела или действие недоступно в текущем состоянии"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      operationId: deleteMyReview
+      security: [{"session":[]}]
+      parameters: [{"name":"id","in":"path","required":true,"schema":{"type":"integer","minimum":1}}]
+      responses:
+        "204":
+          description: "Отзыв удалён"
+        "400":
+          description: "Некорректные данные"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: "Требуется действующий сеанс"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: "Недостаточно прав"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: "Отзыв не найден"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  "/me/reviews/{id}/replace":
+    post:
+      operationId: replaceMyReview
+      security: [{"session":[]}]
+      parameters: [{"name":"id","in":"path","required":true,"schema":{"type":"integer","minimum":1}}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReviewChange"
+      responses:
+        "201":
+          description: "Новый отзыв создан, прежний перенесён в архив"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                required: ["id"]
+                properties:
+                  id: {type: "integer", minimum: 1}
+        "400":
+          description: "Некорректные данные"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: "Требуется действующий сеанс"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: "Недостаточно прав"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: "Отзыв не найден"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: "Версия устарела или действие недоступно в текущем состоянии"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  "/admin/reviews":
+    get:
+      operationId: listModerationReviews
+      security: [{"session":[]}]
+      parameters: [{"name":"page","in":"query","schema":{"type":"integer","minimum":1,"maximum":10000,"default":1}}]
+      responses:
+        "200":
+          description: "Страница отзывов"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                required: ["items","has_more"]
+                properties:
+                  items:
+                    type: "array"
+                    items:
+                      $ref: "#/components/schemas/ManagedReview"
+                  has_more:
+                    type: "boolean"
+        "400":
+          description: "Некорректные данные"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: "Требуется действующий сеанс"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: "Недостаточно прав"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  "/admin/reviews/{id}":
+    patch:
+      operationId: moderateReview
+      security: [{"session":[]}]
+      parameters: [{"name":"id","in":"path","required":true,"schema":{"type":"integer","minimum":1}}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReviewModeration"
+      responses:
+        "204":
+          description: "Решение сохранено в журнале"
+        "400":
+          description: "Некорректные данные"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: "Требуется действующий сеанс"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: "Недостаточно прав"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: "Отзыв не найден"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: "Версия устарела или действие недоступно в текущем состоянии"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   "/photos/{key}":
     get:
       operationId: "getPhoto"
@@ -483,6 +784,49 @@ components:
       in: "cookie"
       name: "reviews_session"
   schemas:
+    Review:
+      type: "object"
+      required: ["id","rating","body","created_at"]
+      properties:
+        id: {type: "integer", minimum: 1}
+        rating: {type: "integer", minimum: 1, maximum: 5}
+        body: {type: "string"}
+        created_at: {type: "string", format: "date-time"}
+    ManagedReview:
+      allOf:
+        - $ref: "#/components/schemas/Review"
+        - type: "object"
+          required: ["dish_id","dish_name","publication_state","version","moderation_reason","archived_at"]
+          properties:
+            dish_id: {type: "integer", minimum: 1}
+            dish_name: {type: "string"}
+            publication_state: {enum: ["published","hidden","archived"]}
+            version: {type: "integer", minimum: 1}
+            moderation_reason: {type: ["string","null"]}
+            archived_at: {type: ["string","null"], format: "date-time"}
+    ReviewChange:
+      type: "object"
+      additionalProperties: false
+      required: ["rating","version"]
+      properties:
+        rating: {type: "integer", minimum: 1, maximum: 5}
+        body: {type: "string", maxLength: 3000}
+        version: {type: "integer", minimum: 1}
+    ReviewModeration:
+      type: "object"
+      additionalProperties: false
+      required: ["action","version"]
+      properties:
+        action: {enum: ["hide","restore","remove"]}
+        reason: {type: "string", maxLength: 300, description: "Обязательная причина для скрытия"}
+        version: {type: "integer", minimum: 1}
+      if:
+        properties:
+          action: {const: "hide"}
+      then:
+        required: ["reason"]
+        properties:
+          reason: {minLength: 1}
     Error:
       type: "object"
       properties:
@@ -548,7 +892,17 @@ components:
           minimum: 1
         photo:
           type: ["string","null"]
-      required: ["category_id","name","description","ingredients","price","portion","unit","aliases","id","photo"]
+        average_rating:
+          type: ["number","null"]
+          minimum: 1
+          maximum: 5
+        rating_count:
+          type: "integer"
+          minimum: 0
+        review_excerpt:
+          type: ["string","null"]
+          description: "Фрагмент последнего опубликованного комментария к блюду"
+      required: ["category_id","name","description","ingredients","price","portion","unit","aliases","id","photo","average_rating","rating_count","review_excerpt"]
     User:
       type: "object"
       properties:

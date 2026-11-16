@@ -31,16 +31,28 @@ type dishInput struct {
 
 type dish struct {
 	dishInput
-	ID    int64   `json:"id"`
-	Photo *string `json:"photo"`
+	ID            int64    `json:"id"`
+	Photo         *string  `json:"photo"`
+	AverageRating *float64 `json:"average_rating"`
+	RatingCount   int64    `json:"rating_count"`
+	ReviewExcerpt *string  `json:"review_excerpt"`
 }
 
 const dishColumns = `d.id,d.category_id,d.name,d.description,d.ingredients,d.price::text,d.portion_value::text,d.portion_unit,d.image_key,
-    ARRAY(SELECT alias FROM dish_alias WHERE dish_id=d.id ORDER BY alias)`
+    ARRAY(SELECT alias FROM dish_alias WHERE dish_id=d.id ORDER BY alias),
+    ratings.average, ratings.count,
+    (SELECT CASE WHEN char_length(r.body)>160 THEN left(r.body,160)||'…' ELSE r.body END
+     FROM review r WHERE r.dish_id=d.id AND r.publication_state='published' AND r.body<>''
+     ORDER BY r.created_at DESC,r.id DESC LIMIT 1)`
+
+const dishSource = ` FROM dish d CROSS JOIN LATERAL (
+    SELECT avg(r.rating)::float8 AS average, count(*) AS count
+    FROM review r WHERE r.dish_id=d.id AND r.publication_state='published'
+) ratings`
 
 func readDish(row pgx.CollectableRow) (dish, error) {
 	var d dish
-	err := row.Scan(&d.ID, &d.CategoryID, &d.Name, &d.Description, &d.Ingredients, &d.Price, &d.Portion, &d.Unit, &d.Photo, &d.Aliases)
+	err := row.Scan(&d.ID, &d.CategoryID, &d.Name, &d.Description, &d.Ingredients, &d.Price, &d.Portion, &d.Unit, &d.Photo, &d.Aliases, &d.AverageRating, &d.RatingCount, &d.ReviewExcerpt)
 	if d.Photo != nil {
 		*d.Photo = "/api/v1/photos/" + *d.Photo
 	}
@@ -123,7 +135,7 @@ func (s server) dishes(w http.ResponseWriter, r *http.Request) {
 		fail(w, 400, "Неверный запрос поиска")
 		return
 	}
-	rows, err := s.db.Query(r.Context(), "SELECT "+dishColumns+` FROM dish d
+	rows, err := s.db.Query(r.Context(), "SELECT "+dishColumns+dishSource+`
         WHERE ($1=0 OR d.category_id=$1) AND strpos(lower(d.name),lower($2))>0
         ORDER BY d.name,d.id LIMIT 21 OFFSET $3`, categoryID, q, (page-1)*20)
 	if err != nil {
@@ -143,7 +155,7 @@ func (s server) dish(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	rows, err := s.db.Query(r.Context(), "SELECT "+dishColumns+" FROM dish d WHERE d.id=$1", id)
+	rows, err := s.db.Query(r.Context(), "SELECT "+dishColumns+dishSource+" WHERE d.id=$1", id)
 	if err != nil {
 		internal(w, err)
 		return

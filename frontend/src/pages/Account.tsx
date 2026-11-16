@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { ReviewManagement } from "./Reviews";
 import { json, message, type User } from "../api/client";
 
 export function Auth({ register, onLogin }: { register: boolean; onLogin: (user: User) => void }) {
@@ -71,5 +72,6 @@ export function Profile({ user, onUpdate }: { user: User; onUpdate: (user: User 
       {error && <p role="alert">{error}</p>}
       {notice && <p role="status">{notice}</p>}
     </form>
+    {user.role === "visitor" && <ReviewManagement />}
   </>;
 }

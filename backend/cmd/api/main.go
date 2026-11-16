@@ -64,6 +64,7 @@ func run() error {
 		MaxHeaderBytes:    32 << 10,
 	}
 	serverErrors := make(chan error, 1)
+	go cleanReviewArchive(ctx, db)
 	go func() {
 		log.Printf("API listening on %s", addr)
 		serverErrors <- server.ListenAndServe()
@@ -78,5 +79,23 @@ func run() error {
 		shutdown, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		return server.Shutdown(shutdown)
+	}
+}
+
+func cleanReviewArchive(ctx context.Context, db *pgxpool.Pool) {
+	ticker := time.NewTicker(time.Minute)
+	defer ticker.Stop()
+	for {
+		query, cancel := context.WithTimeout(ctx, 10*time.Second)
+		err := httpapi.CleanReviewArchive(query, db)
+		cancel()
+		if err != nil && ctx.Err() == nil {
+			log.Printf("review archive cleanup: %v", err)
+		}
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+		}
 	}
 }

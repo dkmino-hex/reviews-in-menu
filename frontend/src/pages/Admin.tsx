@@ -1,16 +1,18 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { api, json, message, type AuditEvent, type Category, type Dish, type Page, type Visitor } from "../api/client";
-import { Pagination } from "./Menu";
+import { Pagination } from "./Pagination";
+import { ReviewManagement } from "./Reviews";
 
 export function Admin() {
   const [section, setSection] = useState("menu");
   return <>
     <h1>Управление рестораном</h1>
     <div className="actions" aria-label="Разделы кабинета">
-      {Object.entries({ menu: "Меню", visitors: "Посетители", audit: "Журнал" }).map(([key, title]) =>
+      {Object.entries({ menu: "Меню", reviews: "Отзывы", visitors: "Посетители", audit: "Журнал" }).map(([key, title]) =>
         <button key={key} aria-pressed={section === key} onClick={() => setSection(key)}>{title}</button>)}
     </div>
-    {section === "menu" ? <EditMenu /> : <AdminList key={section} visitors={section === "visitors"} />}
+    {section === "menu" ? <EditMenu /> : section === "reviews" ? <ReviewManagement admin /> :
+      <AdminList key={section} visitors={section === "visitors"} />}
   </>;
 }
 
@@ -167,6 +169,7 @@ function AdminList({ visitors }: { visitors: boolean }) {
     <h2>{visitors ? "Посетители" : "Журнал действий"}</h2>
     {!visitors && <div className="filters"><label>С даты (UTC)<input type="date" value={since} onChange={e => { setSince(e.target.value); setPage(1); }} /></label><label>Объект<select value={entity} onChange={e => { setEntity(e.target.value); setPage(1); }}>
       <option value="">Все</option><option value="dish">Блюдо</option><option value="category">Категория</option><option value="visitor">Посетитель</option>
+      <option value="review">Отзыв</option>
     </select></label></div>}
     {error && <p role="alert">{error}</p>}
     {!result && !error && <p role="status">Загружаем…</p>}
