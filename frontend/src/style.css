@@ -147,6 +147,68 @@ section { margin-top: 1.5rem; }
 }
 .paper-button:hover { background: var(--paper-tint); transform: translateY(-2px); box-shadow: 0 5px 12px #2b1a0717; }
 .paper-button span { display: inline-block; margin-left: .4rem; color: #9a3907; }
+.paper-button:disabled { opacity: .55; cursor: default; transform: none; box-shadow: none; }
+.account-page { color: var(--ink); margin-block: .75rem 2rem; }
+.account-page h1 { font: 700 clamp(3.1rem,8vw,5.1rem)/1 var(--display); margin: 0 0 1.15rem; }
+.account-page h2 { font: 700 2rem/1 var(--display); margin: 0; }
+.account-login { max-width: 27rem; margin-inline: auto; }
+.account-spread {
+  display: grid;
+  grid-template-columns: minmax(0,.8fr) minmax(0,1.2fr);
+  align-items: start;
+  gap: 1rem;
+}
+.paper-panel, .review-sheet {
+  min-width: 0;
+  padding: clamp(1rem,4vw,1.65rem);
+  border: 1px solid #d6bfa9;
+  border-radius: .9rem;
+  background: var(--paper);
+  box-shadow: 0 3px 0 -1px var(--paper-tint), 0 4px 0 -1px #dbc7b7, 0 8px 20px #2b1a070d;
+}
+.paper-panel > section { margin: 0; }
+.paper-panel > section > h2 { margin: 0 0 .65rem; }
+.account-login-label { margin: 0; color: #725845; font-size: .9rem; overflow-wrap: anywhere; }
+.account-password { min-width: 0; margin: 0; padding: .45rem .65rem .65rem; border: 1px dashed #d6bfa9; border-radius: .45rem; }
+.account-password legend { padding-inline: .3rem; color: #725845; font-size: .85rem; }
+.paper-panel label, .review-sheet label { font-size: .9rem; font-weight: 550; }
+.paper-panel input:not([type="radio"]), .review-sheet textarea {
+  width: 100%;
+  padding: .65rem .75rem;
+  border: 1px solid #bda895;
+  border-radius: .45rem;
+  background: #fffcf8;
+  color: var(--ink);
+}
+.paper-panel .paper-button { justify-self: start; }
+.review-sheet { max-width: 38rem; }
+.review-sheet textarea { resize: vertical; }
+.review-sheet fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.review-fields > legend {
+  margin-bottom: .65rem;
+  font: 700 clamp(1.75rem,4vw,2.35rem)/1.05 var(--display);
+}
+.rating-choice { display: flex; flex-wrap: wrap; gap: .4rem; }
+.rating-choice legend { margin-bottom: .35rem; font-size: .9rem; font-weight: 600; }
+.rating-choice label, .rating-choice label > span { position: relative; }
+.rating-choice label > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .25rem;
+  min-width: 2.45rem;
+  min-height: 2.35rem;
+  border: 1px solid #bda895;
+  border-radius: .55rem;
+  background: var(--paper);
+  cursor: pointer;
+  transition: transform .2s, background-color .2s, border-color .2s;
+}
+.rating-choice label > span span { font-size: .7em; color: #9a3907; }
+.rating-choice input { position: absolute; opacity: 0; inset: 0; margin: 0; }
+.rating-choice input:checked + span { border-color: #a74d20; background: #fce4d1; transform: translateY(-2px); }
+.rating-choice input:focus-visible + span { outline: 2px solid #9a3907; outline-offset: 2px; }
+.review-sheet :is([role="alert"],[role="status"]) { margin: 0; }
 .book-object {
   position: relative;
   width: min(100%, 20rem);
@@ -345,6 +407,7 @@ section { margin-top: 1.5rem; }
 }
 
 @media (max-width: 42rem) {
+  .account-spread { grid-template-columns: minmax(0,1fr); }
   .book-hero { grid-template-columns: minmax(0, 1fr) minmax(0, .6fr); gap: .65rem; }
   .book-intro h1 { font-size: clamp(3.25rem, 11vw, 5rem); }
   .menu-spread { grid-template-columns: minmax(0, 1fr); }
@@ -358,4 +421,6 @@ section { margin-top: 1.5rem; }
   .book-object, .menu-book .menu-leaf { animation: none; }
   .book-cover, .menu-photo img, .paper-button { transition: none; }
   .book-hero:is(:hover,:focus-within) .book-cover, .menu-photo:hover img, .paper-button:hover { transform: none; }
+  .rating-choice label > span { transition: none; }
+  .rating-choice input:checked + span { transform: none; }
 }
