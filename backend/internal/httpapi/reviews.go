@@ -89,6 +89,7 @@ type publicReview struct {
 	Rating    int       `json:"rating"`
 	Body      string    `json:"body"`
 	CreatedAt time.Time `json:"created_at"`
+	Tone      *string   `json:"tone"`
 }
 
 func (s server) publicReviews(w http.ResponseWriter, r *http.Request) {
@@ -110,9 +111,10 @@ func (s server) publicReviews(w http.ResponseWriter, r *http.Request) {
 		fail(w, 404, "Блюдо не найдено")
 		return
 	}
-	rows, err := s.db.Query(ctx, `SELECT id,rating,body,created_at FROM review
-		WHERE dish_id=$1 AND publication_state='published' AND body<>''
-		ORDER BY created_at DESC,id DESC LIMIT 21 OFFSET $2`, id, (page-1)*20)
+	rows, err := s.db.Query(ctx, `SELECT r.id,r.rating,r.body,r.created_at,a.tone FROM review r
+		LEFT JOIN published_review_sentiment a ON a.review_id=r.id
+		WHERE r.dish_id=$1 AND r.publication_state='published' AND r.body<>''
+		ORDER BY r.created_at DESC,r.id DESC LIMIT 21 OFFSET $2`, id, (page-1)*20)
 	if err != nil {
 		internal(w, err)
 		return

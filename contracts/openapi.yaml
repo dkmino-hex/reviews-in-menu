@@ -854,6 +854,9 @@ components:
         rating: {type: "integer", minimum: 1, maximum: 5}
         body: {type: "string"}
         created_at: {type: "string", format: "date-time"}
+        tone:
+          enum: ["positive","negative","neutral","mixed",null]
+          description: "Учебная тональность опубликованного комментария, если он размечен"
     ManagedReview:
       allOf:
         - $ref: "#/components/schemas/Review"
@@ -964,7 +967,26 @@ components:
         review_excerpt:
           type: ["string","null"]
           description: "Фрагмент последнего опубликованного комментария к блюду"
-      required: ["category_id","name","description","ingredients","price","portion","unit","aliases","id","photo","average_rating","rating_count","review_excerpt"]
+        opinions:
+          type: "object"
+          description: "Учебная сводка по опубликованным комментариям за 30 календарных дней"
+          required: ["sample","tones","highlights"]
+          properties:
+            sample: {type: "integer", minimum: 0}
+            tones:
+              type: "object"
+              propertyNames: {enum: ["positive","negative","neutral","mixed"]}
+              additionalProperties: {type: "integer", minimum: 1}
+            highlights:
+              type: "array"
+              items:
+                type: "object"
+                required: ["label","tone","count"]
+                properties:
+                  label: {type: "string"}
+                  tone: {enum: ["positive","negative","neutral"]}
+                  count: {type: "integer", minimum: 1}
+      required: ["category_id","name","description","ingredients","price","portion","unit","aliases","id","photo","average_rating","rating_count","review_excerpt","opinions"]
     User:
       type: "object"
       properties:
