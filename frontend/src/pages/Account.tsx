@@ -22,16 +22,16 @@ export function Auth({ register, onLogin }: { register: boolean; onLogin: (user:
     finally { setBusy(false); }
   }
 
-  return <>
+  return <div className="account-page account-login">
     <h1>{register ? "Регистрация" : "Вход"}</h1>
-    <form className="stack narrow" onSubmit={submit}>
+    <form className="paper-panel stack" onSubmit={submit}>
       {register && <label>Имя<input name="name" maxLength={80} autoComplete="name" required /></label>}
       <label>Логин<input name="login" maxLength={64} autoComplete="username" required /></label>
       <label>Пароль<input name="password" type="password" autoComplete={register ? "new-password" : "current-password"} required /></label>
-      <button disabled={busy}>{register ? "Зарегистрироваться" : "Войти"}</button>
+      <button className="paper-button" disabled={busy}>{register ? "Зарегистрироваться" : "Войти"}</button>
       {error && <p role="alert">{error}</p>}
     </form>
-  </>;
+  </div>;
 }
 
 export function Profile({ user, onUpdate }: { user: User; onUpdate: (user: User | null) => void }) {
@@ -61,17 +61,23 @@ export function Profile({ user, onUpdate }: { user: User; onUpdate: (user: User 
     finally { setBusy(false); }
   }
 
-  return <>
+  return <div className="account-page">
     <h1>Профиль</h1>
-    <p>Логин {user.login}</p>
-    <form className="stack narrow" onSubmit={submit}>
-      <label>Имя<input name="name" defaultValue={user.name} maxLength={80} required /></label>
-      <label>Текущий пароль для смены пароля<input name="currentPassword" type="password" autoComplete="current-password" /></label>
-      <label>Новый пароль<input name="newPassword" type="password" minLength={8} autoComplete="new-password" /></label>
-      <button disabled={busy}>Сохранить</button>
-      {error && <p role="alert">{error}</p>}
-      {notice && <p role="status">{notice}</p>}
-    </form>
-    {user.role === "visitor" && <ReviewManagement />}
-  </>;
+    <div className="account-spread">
+      <form className="paper-panel stack" onSubmit={submit}>
+        <h2>Личные данные</h2>
+        <p className="account-login-label">Логин <strong>{user.login}</strong></p>
+        <label>Имя<input name="name" defaultValue={user.name} maxLength={80} required /></label>
+        <fieldset className="account-password stack">
+          <legend>Смена пароля</legend>
+          <label>Текущий пароль<input name="currentPassword" type="password" autoComplete="current-password" /></label>
+          <label>Новый пароль<input name="newPassword" type="password" minLength={8} autoComplete="new-password" /></label>
+        </fieldset>
+        <button className="paper-button" disabled={busy}>Сохранить</button>
+        {error && <p role="alert">{error}</p>}
+        {notice && <p role="status">{notice}</p>}
+      </form>
+      {user.role === "visitor" && <div className="paper-panel"><ReviewManagement /></div>}
+    </div>
+  </div>;
 }

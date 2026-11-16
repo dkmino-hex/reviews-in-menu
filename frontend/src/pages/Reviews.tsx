@@ -56,18 +56,21 @@ export function ReviewForm({ review, submit, saved }: {
     finally { setBusy(false); }
   }
 
-  return <form onSubmit={send}>
-    <fieldset className="stack narrow" disabled={busy}>
+  return <form className="review-sheet" onSubmit={send}>
+    <fieldset className="stack review-fields" disabled={busy}>
       <legend>{review ? "Правка отзыва" : "Оставить отзыв"}</legend>
-      <label>Оценка<select name="rating" required defaultValue={review?.rating ?? ""}>
-        <option value="" disabled>Выберите оценку</option>
-        {[1, 2, 3, 4, 5].map(rating => <option key={rating} value={rating}>{rating}</option>)}
-      </select></label>
-      <label>Комментарий (необязательно)<textarea name="body" rows={3} maxLength={3000} defaultValue={review?.body} /></label>
+      <fieldset className="rating-choice">
+        <legend>Оценка</legend>
+        {[1, 2, 3, 4, 5].map(rating => <label key={rating}>
+          <input type="radio" name="rating" value={rating} required defaultChecked={review?.rating === rating} />
+          <span>{rating}<span aria-hidden="true">★</span></span>
+        </label>)}
+      </fieldset>
+      <label>Комментарий (необязательно)<textarea name="body" rows={4} maxLength={3000} defaultValue={review?.body} /></label>
       <div className="actions">
-        <button>{review ? "Сохранить правку" : "Опубликовать"}</button>
+        <button className="paper-button">{review ? "Сохранить правку" : "Опубликовать"}</button>
         {review?.publication_state === "published" &&
-          <button value="replace">Заменить отзыв</button>}
+          <button className="paper-button" value="replace">Заменить отзыв</button>}
       </div>
       {error && <p role="alert">{error}</p>}
       {notice && <p role="status">{notice}</p>}
