@@ -1,0 +1,37 @@
+meta {
+  name: Remove Review
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseURL}}/admin/reviews/{{reviewId}}
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "action": "remove",
+    "reason": "Повторное нарушение правил",
+    "version": {{reviewVersion}}
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Модераторское удаление ограничивает повторную публикацию отзыва этого автора на блюдо.
+  Проверь reviewId и актуальную reviewVersion.
+}

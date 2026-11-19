@@ -1,0 +1,35 @@
+meta {
+  name: Block Visitor
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{baseURL}}/admin/visitors/{{visitorId}}
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "blocked": true,
+    "reason": "Повторные нарушения правил"
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Завершает сеансы выбранного посетителя. Проверь visitorId.
+}

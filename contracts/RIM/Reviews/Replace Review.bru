@@ -1,0 +1,37 @@
+meta {
+  name: Replace Review
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseURL}}/me/reviews/{{reviewId}}/replace
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "rating": 5,
+    "body": "При повторном посещении всё понравилось.",
+    "version": {{reviewVersion}}
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Прежний отзыв переносится в архив. Сохрани новый id из ответа в reviewId.
+  Скрытый отзыв заменить нельзя.
+}

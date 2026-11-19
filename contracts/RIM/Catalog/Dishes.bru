@@ -1,0 +1,30 @@
+meta {
+  name: Dishes
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseURL}}/dishes?page={{page}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  page: {{page}}
+  ~q: паста
+  ~category: {{categoryId}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Поиск q и фильтр category изначально выключены. Включи нужные в Params.
+}

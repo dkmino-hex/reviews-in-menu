@@ -1,0 +1,34 @@
+meta {
+  name: Upload Photo
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseURL}}/admin/dishes/{{dishId}}/photo
+  body: file
+  auth: inherit
+}
+
+headers {
+  Content-Type: image/jpeg
+}
+
+body:file {
+  file: @file({{photoFile}})
+}
+
+assert {
+  res.status: eq 204
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Тело — бинарный JPEG или PNG. Максимум 5 МБ, до 4096 × 4096.
+  photoFile по умолчанию указывает на тестовую pasta.jpeg относительно корня коллекции.
+  При выборе PNG укажи Content-Type: image/png. Загрузка заменяет текущую фотографию.
+}

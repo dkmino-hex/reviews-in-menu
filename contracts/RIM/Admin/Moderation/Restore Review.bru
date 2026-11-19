@@ -1,0 +1,31 @@
+meta {
+  name: Restore Review
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{baseURL}}/admin/reviews/{{reviewId}}
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "action": "restore",
+    "version": {{reviewVersion}}
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,32 @@
+meta {
+  name: Hide Review
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{baseURL}}/admin/reviews/{{reviewId}}
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "action": "hide",
+    "reason": "Нарушение правил публикации",
+    "version": {{reviewVersion}}
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,24 @@
+meta {
+  name: Photo
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseURL}}/photos/{{photoKey}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  photoKey — имя файла из поля photo карточки блюда, без /api/v1/photos/.
+}

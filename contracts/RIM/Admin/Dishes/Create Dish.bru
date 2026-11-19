@@ -1,0 +1,44 @@
+meta {
+  name: Create Dish
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseURL}}/admin/dishes
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "category_id": {{categoryId}},
+    "name": "Тестовая паста",
+    "description": "Паста в томатном соусе",
+    "ingredients": "Паста, томаты, базилик",
+    "price": "420.00",
+    "portion": "280",
+    "unit": "g",
+    "aliases": [
+      "тестовая томатная паста"
+    ]
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Сохрани id созданного блюда в dishId.
+  Цена и порция — строки. Для напитка unit: ml. Для отсутствующей порции portion и unit: null.
+}

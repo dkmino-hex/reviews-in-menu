@@ -1,0 +1,20 @@
+meta {
+  name: Categories
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseURL}}/categories
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
