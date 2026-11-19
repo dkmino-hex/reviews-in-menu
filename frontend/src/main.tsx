@@ -4,9 +4,11 @@ import { api, APIError, message, type User } from "./api/client";
 import { Auth, Profile } from "./pages/Account";
 import { Admin } from "./pages/Admin";
 import { DishPage, Menu } from "./pages/Menu";
+import { Icon } from "./components/Icon";
 import "@fontsource-variable/cormorant-garamond";
 import "@fontsource-variable/geist";
 import "./style.css";
+import "./branding.css";
 
 function App() {
   const [route, setRoute] = useState(location.hash.slice(1));
@@ -33,13 +35,16 @@ function App() {
 
   const id = /^\/dishes\/([^/]+)$/.exec(route)?.[1];
   return <>
-    <header><nav aria-label="Основная навигация">
-      <a href="#/" className="brand">Reviews in menu</a>
+    <header className="site-header"><nav aria-label="Основная навигация">
+      <a href="#/" className="brand" aria-label="Разбивака — меню ресторана">Разбивака</a>
+      <div className="header-actions">
+      <a href="#/" className="nav-pill" aria-current={!id && !["/profile", "/admin", "/login", "/register"].includes(route) ? "page" : undefined}><Icon name="book" />Меню</a>
       {user ? <>
-        <a href="#/profile">Профиль</a>
-        {user.role === "admin" && <a href="#/admin">Кабинет</a>}
-        <button onClick={logout}>Выйти</button>
-      </> : <><a href="#/login">Войти</a><a href="#/register">Регистрация</a></>}
+        <a href="#/profile" className="nav-pill" aria-current={route === "/profile" ? "page" : undefined}><Icon name="user" />Профиль</a>
+        {user.role === "admin" && <a href="#/admin" className="nav-pill" aria-current={route === "/admin" ? "page" : undefined}><Icon name="settings" />Кабинет</a>}
+        <button className="nav-pill" onClick={logout}><Icon name="logout" />Выйти</button>
+      </> : user === undefined ? <span className="nav-pill" role="status">Проверяем сеанс…</span> : <><a href="#/login" className="nav-pill" aria-current={route === "/login" ? "page" : undefined}>Войти</a><a href="#/register" className="nav-pill nav-primary" aria-current={route === "/register" ? "page" : undefined}>Регистрация<Icon name="arrow" /></a></>}
+      </div>
     </nav></header>
     <main>
       {error && <p role="alert">{error}</p>}

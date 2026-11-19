@@ -1,6 +1,6 @@
 {
   "version": "1",
-  "name": "RIM",
+  "name": "Review Breaker",
   "type": "collection",
   "ignore": [
     "node_modules",

@@ -12,7 +12,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
-	"reviews-in-menu/backend/internal/accounts"
+	"review-breaker/backend/internal/accounts"
 )
 
 const sessionCookie = "reviews_session"

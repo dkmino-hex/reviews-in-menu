@@ -1,4 +1,4 @@
-module reviews-in-menu/backend
+module review-breaker/backend
 
 go 1.26.0
 

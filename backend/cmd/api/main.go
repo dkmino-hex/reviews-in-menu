@@ -10,9 +10,9 @@ import (
 	"syscall"
 	"time"
 
-	"reviews-in-menu/backend/internal/accounts"
-	"reviews-in-menu/backend/internal/httpapi"
-	"reviews-in-menu/backend/migrations"
+	"review-breaker/backend/internal/accounts"
+	"review-breaker/backend/internal/httpapi"
+	"review-breaker/backend/migrations"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )

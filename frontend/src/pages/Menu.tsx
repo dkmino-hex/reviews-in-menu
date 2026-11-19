@@ -75,7 +75,7 @@ export function Menu() {
       <div className="book-object" aria-hidden="true">
         <div className="book-page-edge"></div>
         <div className="book-cover">
-          <div className="book-label"><span>Reviews in menu</span><b>Меню</b></div>
+          <div className="book-label"><span>Review Breaker</span><b>Меню</b></div>
           <span className="book-sticker">✷</span>
         </div>
         <span className="book-bookmark"></span>
