@@ -20,6 +20,7 @@ func (s server) reviewRoutes(m *http.ServeMux) {
 	m.HandleFunc("DELETE /api/v1/me/reviews/{id}", s.deleteOwnReview)
 	m.HandleFunc("GET /api/v1/admin/reviews", s.moderationReviews)
 	m.HandleFunc("PATCH /api/v1/admin/reviews/{id}", s.moderateReview)
+	m.HandleFunc("PUT /api/v1/reviews/{id}/helpfulness", s.voteReview)
 }
 
 func (s server) reviewAuthor(w http.ResponseWriter, r *http.Request) (user, bool) {
@@ -90,6 +91,10 @@ type publicReview struct {
 	Body      string    `json:"body"`
 	CreatedAt time.Time `json:"created_at"`
 	Tone      *string   `json:"tone"`
+	Helpful   int64     `json:"helpful"`
+	Unhelpful int64     `json:"unhelpful"`
+	MyVote    int       `json:"my_vote"`
+	CanVote   bool      `json:"can_vote"`
 }
 
 func (s server) publicReviews(w http.ResponseWriter, r *http.Request) {
@@ -111,10 +116,17 @@ func (s server) publicReviews(w http.ResponseWriter, r *http.Request) {
 		fail(w, 404, "Блюдо не найдено")
 		return
 	}
-	rows, err := s.db.Query(ctx, `SELECT r.id,r.rating,r.body,r.created_at,a.tone FROM review r
+	rows, err := s.db.Query(ctx, `SELECT r.id,r.rating,r.body,r.created_at,a.tone,
+		coalesce(v.helpful,0),coalesce(v.unhelpful,0),coalesce(m.vote,0),
+		coalesce(u.id<>r.author_id,false) FROM review r
 		LEFT JOIN published_review_sentiment a ON a.review_id=r.id
+		LEFT JOIN review_vote_totals v ON v.review_id=r.id
+		LEFT JOIN app_session s ON s.token_hash=$3 AND s.expires_at>now()
+		LEFT JOIN app_user u ON u.id=s.user_id AND NOT u.blocked
+		LEFT JOIN review_vote m ON m.review_id=r.id AND m.user_id=u.id
 		WHERE r.dish_id=$1 AND r.publication_state='published' AND r.body<>''
-		ORDER BY r.created_at DESC,r.id DESC LIMIT 21 OFFSET $2`, id, (page-1)*20)
+		ORDER BY coalesce(v.helpful,0)-coalesce(v.unhelpful,0) DESC,
+		coalesce(v.helpful,0) DESC,r.created_at DESC,r.id DESC LIMIT 21 OFFSET $2`, id, (page-1)*20, sessionHash(r))
 	if err != nil {
 		internal(w, err)
 		return
@@ -232,6 +244,10 @@ func (s server) changeOwnReview(w http.ResponseWriter, r *http.Request, replace 
 			return errReviewConflict
 		}
 		if !replace {
+			// Votes describe the previous text and rating; edited reviews start fresh.
+			if _, err := tx.Exec(ctx, "DELETE FROM review_vote WHERE review_id=$1", id); err != nil {
+				return err
+			}
 			_, err = tx.Exec(ctx, "UPDATE review SET rating=$2,body=$3,version=version+1 WHERE id=$1", id, in.Rating, in.Body)
 			return err
 		}

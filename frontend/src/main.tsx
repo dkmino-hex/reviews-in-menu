@@ -9,6 +9,7 @@ import "@fontsource-variable/cormorant-garamond";
 import "@fontsource-variable/geist";
 import "./style.css";
 import "./branding.css";
+import "./design-system.css";
 
 function App() {
   const [route, setRoute] = useState(location.hash.slice(1));
@@ -34,6 +35,7 @@ function App() {
   }
 
   const id = /^\/dishes\/([^/]+)$/.exec(route)?.[1];
+  const category = new URLSearchParams(route.split("?")[1] ?? "").get("category") ?? "";
   return <>
     <header className="site-header"><nav aria-label="Основная навигация">
       <a href="#/" className="brand" aria-label="Разбивака — меню ресторана">Разбивака</a>
@@ -54,7 +56,7 @@ function App() {
             : !user ? <p><a href="#/login">Войдите в аккаунт</a></p>
             : route === "/profile" ? <Profile user={user} onUpdate={setUser} />
             : user.role === "admin" ? <Admin /> : <p>Доступно администратору.</p>
-        ) : id ? <DishPage key={id} id={id} user={user} /> : <Menu />}
+        ) : id ? <DishPage key={id} id={id} user={user} /> : <Menu key={category} selectedCategory={category} />}
     </main>
   </>;
 }

@@ -87,6 +87,7 @@ paths:
   "/dishes/{id}/reviews":
     get:
       operationId: listDishReviews
+      description: "Опубликованные комментарии, сначала по helpful-unhelpful, затем по helpful и дате. Голосовать могут авторизованные пользователи, кроме автора."
       parameters: [{"name":"id","in":"path","required":true,"schema":{"type":"integer","minimum":1}},{"name":"page","in":"query","schema":{"type":"integer","minimum":1,"maximum":10000,"default":1}}]
       responses:
         "200":
@@ -100,7 +101,7 @@ paths:
                   items:
                     type: "array"
                     items:
-                      $ref: "#/components/schemas/Review"
+                      $ref: "#/components/schemas/PublicReview"
                   has_more:
                     type: "boolean"
         "400":
@@ -183,6 +184,33 @@ paths:
             "application/json":
               schema:
                 "$ref": "#/components/schemas/Error"
+  "/reviews/{id}/helpfulness":
+    put:
+      operationId: voteReviewHelpfulness
+      description: "Один изменяемый голос авторизованного пользователя (посетителя или администратора) на опубликованный непустой комментарий. Свой отзыв оценивать нельзя. При редактировании текста или оценки голоса сбрасываются."
+      security: [{"session":[]}]
+      parameters: [{"name":"id","in":"path","required":true,"schema":{"type":"integer","minimum":1}}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [vote]
+              properties:
+                vote: {type: integer, enum: [-1, 0, 1], description: "1 — полезно, -1 — не полезно, 0 — снять голос"}
+      responses:
+        "200":
+          description: "Актуальные отметки полезности"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewFeedback"
+        "400": {description: "Некорректный голос"}
+        "401": {description: "Требуется сеанс"}
+        "403": {description: "Нельзя голосовать за свой комментарий"}
+        "404": {description: "Опубликованный комментарий не найден"}
   "/me/reviews":
     get:
       operationId: listMyReviews
@@ -857,6 +885,18 @@ components:
         tone:
           enum: ["positive","negative","neutral","mixed",null]
           description: "Учебная тональность опубликованного комментария, если он размечен"
+    ReviewFeedback:
+      type: object
+      required: [helpful, unhelpful, my_vote, can_vote]
+      properties:
+        helpful: {type: integer, minimum: 0}
+        unhelpful: {type: integer, minimum: 0}
+        my_vote: {type: integer, enum: [-1, 0, 1]}
+        can_vote: {type: boolean}
+    PublicReview:
+      allOf:
+        - $ref: "#/components/schemas/Review"
+        - $ref: "#/components/schemas/ReviewFeedback"
     ManagedReview:
       allOf:
         - $ref: "#/components/schemas/Review"

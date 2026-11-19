@@ -22,6 +22,8 @@ export type Visitor = User & { blocked: boolean };
 export type AuditEvent = { id: number; actor_id: number; action: string; entity_type: string; entity_id: number; created_at: string; details: { reason?: string } };
 export type Page<T> = { items: T[]; has_more: boolean };
 export type Review = { id: number; rating: number; body: string; created_at: string; tone?: Tone | null };
+export type ReviewFeedback = { helpful: number; unhelpful: number; my_vote: -1 | 0 | 1; can_vote: boolean };
+export type PublicReview = Review & ReviewFeedback;
 export type ManagedReview = Review & {
   dish_id: number;
   dish_name: string;

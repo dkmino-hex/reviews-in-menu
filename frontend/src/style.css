@@ -60,7 +60,7 @@ section { margin-top: 1.5rem; }
   background: #fffdf9;
   color: #2b1a07;
 }
-.analytics-filters button { background: #713b24; color: white; font-weight: 600; }
+.analytics-filters > button { background: #713b24; color: white; font-weight: 600; }
 .analytics-note { color: #725845; font-size: .875rem; }
 .analytics-summary { display: flex; flex-wrap: wrap; gap: .75rem; }
 .analytics-summary div, .analytics-chart {
@@ -210,6 +210,8 @@ section { margin-top: 1.5rem; }
 .rating-choice input:focus-visible + span { outline: 2px solid #9a3907; outline-offset: 2px; }
 .review-sheet :is([role="alert"],[role="status"]) { margin: 0; }
 .book-object {
+  user-select: none;
+  -webkit-user-select: none;
   position: relative;
   width: min(100%, 20rem);
   aspect-ratio: 4 / 4.75;
@@ -262,7 +264,6 @@ section { margin-top: 1.5rem; }
   color: var(--ink);
   box-shadow: 0 2px 4px #3e241c35;
 }
-.book-label span { font-size: clamp(.6rem, 2vw, .8rem); }
 .book-label b { font: 700 clamp(1.55rem, 4vw, 3.4rem)/1 var(--display); }
 .book-sticker {
   position: absolute;
@@ -476,14 +477,14 @@ section { margin-top: 1.5rem; }
 }
 .admin-paper :where(button):hover:not(:disabled) { border-color: #a76945; background: #f7efe9; }
 .admin-paper button:disabled { opacity: .57; cursor: default; }
-.admin-paper .admin-primary, .admin-paper .analytics-filters button {
+.admin-paper .admin-primary, .admin-paper .analytics-filters > button {
   justify-self: start;
   border-color: #713b24;
   background: #713b24;
   color: #fff;
   padding-inline: .9rem;
 }
-.admin-paper .admin-primary:hover:not(:disabled), .admin-paper .analytics-filters button:hover { background: #572b18; }
+.admin-paper .admin-primary:hover:not(:disabled), .admin-paper .analytics-filters > button:hover { background: #572b18; }
 .admin-paper .admin-danger, .admin-paper .review-list button[value="remove"] { color: #8a3028; }
 .admin-book :is(a, button, input, textarea, select, summary):focus-visible { outline: 2px solid #a24b20; outline-offset: 2px; }
 .admin-paper :where(input, select, textarea) {

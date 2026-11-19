@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { api, json, message, type Category, type Dish, type Page, type User } from "../api/client";
 import { DishReviews, ReviewForm } from "./Reviews";
 import { Opinions } from "./Opinions";
+import { Select } from "../components/Select";
 
 const prices = new Intl.NumberFormat("ru-RU", {
   style: "currency", currency: "RUB", minimumFractionDigits: 0,
@@ -21,9 +22,9 @@ function DishFeedback({ dish }: { dish: Dish }) {
   </>;
 }
 
-export function Menu() {
+export function Menu({ selectedCategory = "" }: { selectedCategory?: string }) {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [category, setCategory] = useState("");
+  const category = selectedCategory;
   const [query, setQuery] = useState("");
   const [spread, setSpread] = useState(0);
   const [direction, setDirection] = useState("forward");
@@ -75,7 +76,7 @@ export function Menu() {
       <div className="book-object" aria-hidden="true">
         <div className="book-page-edge"></div>
         <div className="book-cover">
-          <div className="book-label"><span>Review Breaker</span><b>Меню</b></div>
+          <div className="book-label"><b>Меню</b></div>
           <span className="book-sticker">✷</span>
         </div>
         <span className="book-bookmark"></span>
@@ -84,21 +85,19 @@ export function Menu() {
     <section className="book-catalog" ref={catalog} tabIndex={-1} aria-label="Блюда меню">
       <div className="filters menu-filters">
         <label>Название блюда<input type="search" placeholder="Найти блюдо" maxLength={120} value={query} onChange={e => { setQuery(e.target.value); setSpread(0); }} /></label>
-        <label>Категория<select value={category} onChange={e => { setCategory(e.target.value); setSpread(0); }}>
-          <option value="">Все категории</option>
-          {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-        </select></label>
+        <div className="field-label">Категория<Select label="Категория меню" value={category} onChange={value => { location.hash = value ? `#/?category=${value}` : "#/"; }}
+          options={[{ value: "", label: "Все категории" }, ...categories.map(c => ({ value: String(c.id), label: c.name }))]} /></div>
       </div>
       <div className="menu-paper" aria-busy={!result && !error}>
         {error ? <p className="menu-status" role="alert">{error}</p> : !result ? <p className="menu-status" role="status">Загружаем меню…</p> :
           result.items.length === 0 ? <p className="menu-status">Блюда не найдены.</p> :
           <ul className={`menu-spread turn-${direction}`} key={spread}>
             {result.items.slice(offset, offset + 2).map(d => <li className="menu-leaf" key={d.id}>
-              <p className="menu-category">{categories.find(c => c.id === d.category_id)?.name}</p>
+              <p className="menu-category"><a href={`#/?category=${d.category_id}`}>{categories.find(c => c.id === d.category_id)?.name}</a></p>
               <h2><a href={`#/dishes/${d.id}`}>{d.name}</a></h2>
-              <div className="menu-photo">
+              <a className="menu-photo" href={`#/dishes/${d.id}`} aria-label={`Открыть блюдо: ${d.name}`}>
                 {d.photo ? <img src={d.photo} alt={d.name} loading="lazy" /> : <span>Фото скоро появится</span>}
-              </div>
+              </a>
               <div>
                 <p className="menu-price">{prices.format(Number(d.price))}</p>
                 <DishFeedback dish={d} />
@@ -141,7 +140,7 @@ export function DishPage({ id, user }: { id: string; user: User | null | undefin
         <p><a href="#/profile">Мои отзывы</a></p>
       </section>}
       {user === null && <p><a href="#/login">Войдите, чтобы оставить отзыв</a></p>}
-      <DishReviews key={revision} dishID={dish.id} />
+      <DishReviews key={`${revision}-${user?.id ?? "guest"}`} dishID={dish.id} user={user} />
     </>}
   </>;
 }

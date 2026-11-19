@@ -1,0 +1,34 @@
+meta {
+  name: Not Helpful
+  type: http
+  seq: 7
+}
+
+put {
+  url: {{baseURL}}/reviews/{{reviewId}}/helpfulness
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "vote": -1
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Войди посетителем или администратором. Автор не может голосовать за свой комментарий. Повторный PUT не дублирует голос.
+}

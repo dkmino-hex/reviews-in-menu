@@ -3,6 +3,8 @@ import { api, json, message, type AuditEvent, type Category, type Dish, type Pag
 import { Pagination } from "./Pagination";
 import { RatingAnalytics } from "./RatingAnalytics";
 import { ReviewManagement } from "./Reviews";
+import { Select } from "../components/Select";
+import { DatePicker } from "../components/DatePicker";
 
 const sections = { menu: "Меню", reviews: "Отзывы", analytics: "Аналитика", visitors: "Посетители", audit: "Журнал" };
 const prices = new Intl.NumberFormat("ru-RU", { style: "currency", currency: "RUB", minimumFractionDigits: 0 });
@@ -140,10 +142,8 @@ function EditMenu() {
         </div>
         <form key={`${dish?.id ?? "new"}-${revision}`} className="stack" onSubmit={saveDish}>
           <div className="admin-field-row">
-            <label>Категория<select name="category" defaultValue={dish?.category_id ?? ""} required>
-              <option value="" disabled>Выберите категорию</option>
-              {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select></label>
+            <div className="field-label">Категория<Select label="Категория блюда" name="category" defaultValue={String(dish?.category_id ?? "")} required
+              options={[{ value: "", label: "Выберите категорию", disabled: true }, ...categories.map(c => ({ value: String(c.id), label: c.name }))]} /></div>
             <label>Название<input name="name" defaultValue={dish?.name} maxLength={120} required /></label>
           </div>
           <label>Описание<textarea name="description" rows={3} defaultValue={dish?.description} /></label>
@@ -151,7 +151,7 @@ function EditMenu() {
           <div className="admin-field-row">
             <label>Цена, ₽<input name="price" inputMode="decimal" defaultValue={dish?.price} required /></label>
             <label>Размер порции<input name="portion" inputMode="decimal" defaultValue={dish?.portion ?? ""} /></label>
-            <label>Единица<select name="unit" defaultValue={dish?.unit ?? "g"}><option value="g">г</option><option value="ml">мл</option></select></label>
+            <div className="field-label">Единица<Select label="Единица порции" name="unit" defaultValue={dish?.unit ?? "g"} options={[{ value: "g", label: "г" }, { value: "ml", label: "мл" }]} /></div>
           </div>
           <label>Варианты названия, каждый с новой строки<textarea name="aliases" defaultValue={dish?.aliases.join("\n")} /></label>
           <button className="admin-primary" disabled={busy || !categories.length}>Сохранить блюдо</button>
@@ -206,10 +206,9 @@ function AdminList({ visitors }: { visitors: boolean }) {
 
   return <section>
     <h2>{visitors ? "Посетители" : "Журнал действий"}</h2>
-    {!visitors && <div className="filters"><label>С даты (UTC)<input type="date" value={since} onChange={e => { setSince(e.target.value); setPage(1); }} /></label><label>Объект<select value={entity} onChange={e => { setEntity(e.target.value); setPage(1); }}>
-      <option value="">Все</option><option value="dish">Блюдо</option><option value="category">Категория</option><option value="visitor">Посетитель</option>
-      <option value="review">Отзыв</option>
-    </select></label></div>}
+    {!visitors && <div className="filters"><div className="field-label">С даты (UTC)<DatePicker label="С даты (UTC)" value={since} onChange={value => { setSince(value); setPage(1); }} /></div>
+      <div className="field-label">Объект<Select label="Объект журнала" value={entity} onChange={value => { setEntity(value); setPage(1); }}
+        options={[{ value: "", label: "Все" }, ...Object.entries(auditEntities).map(([value, label]) => ({ value, label }))]} /></div></div>}
     {error && <p role="alert">{error}</p>}
     {!result && !error && <p role="status">Загружаем…</p>}
     {result?.items.length === 0 && <p>Записей пока нет.</p>}

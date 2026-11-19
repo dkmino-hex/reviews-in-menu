@@ -1,5 +1,8 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { api, message, type Category } from "../api/client";
+import { Select } from "../components/Select";
+import { DatePicker } from "../components/DatePicker";
+import { ScrollArea } from "../components/ScrollArea";
 
 type Rating = { average_rating: number | null; rating_count: number };
 type Point = Rating & { period: string };
@@ -60,24 +63,17 @@ export function RatingAnalytics() {
   return <section className="rating-analytics" aria-labelledby="rating-analytics">
     <h2 id="rating-analytics">Аналитика оценок</h2>
     <form className="analytics-filters" onSubmit={apply}>
-      <label>С даты<input type="date" required value={draft.from} max={draft.to || undefined}
-        onChange={e => setDraft({ ...draft, from: e.target.value })} /></label>
-      <label>По дату<input type="date" required value={draft.to} min={draft.from || undefined}
-        onChange={e => setDraft({ ...draft, to: e.target.value })} /></label>
-      <label>Категория<select value={draft.category}
-        onChange={e => setDraft({ ...draft, category: e.target.value, dish: "" })}>
-        <option value="">Все категории</option>
-        {categories.map(category => <option key={category.id} value={category.id}>{category.name}</option>)}
-      </select></label>
-      <label>Блюдо<select value={draft.dish} onChange={e => setDraft({ ...draft, dish: e.target.value })}>
-        <option value="">Все блюда</option>
-        {dishOptions.map(dish => <option key={dish.id} value={dish.id}>{dish.name}</option>)}
-      </select></label>
-      <label>Группировка<select value={draft.group} onChange={e => setDraft({ ...draft, group: e.target.value })}>
-        <option value="day">По дням</option>
-        <option value="week">По неделям</option>
-        <option value="month">По месяцам</option>
-      </select></label>
+      <div className="field-label">С даты<DatePicker label="С даты" required value={draft.from} max={draft.to}
+        onChange={from => setDraft({ ...draft, from })} /></div>
+      <div className="field-label">По дату<DatePicker label="По дату" required value={draft.to} min={draft.from}
+        onChange={to => setDraft({ ...draft, to })} /></div>
+      <div className="field-label">Категория<Select label="Категория аналитики" value={draft.category}
+        onChange={category => setDraft({ ...draft, category, dish: "" })}
+        options={[{ value: "", label: "Все категории" }, ...categories.map(c => ({ value: String(c.id), label: c.name }))]} /></div>
+      <div className="field-label">Блюдо<Select label="Блюдо аналитики" value={draft.dish} onChange={dish => setDraft({ ...draft, dish })}
+        options={[{ value: "", label: "Все блюда" }, ...dishOptions.map(d => ({ value: String(d.id), label: d.name }))]} /></div>
+      <div className="field-label">Группировка<Select label="Группировка" value={draft.group} onChange={group => setDraft({ ...draft, group })}
+        options={[{ value: "day", label: "По дням" }, { value: "week", label: "По неделям" }, { value: "month", label: "По месяцам" }]} /></div>
       <button>Показать</button>
     </form>
     <p className="analytics-note">Период включительно, время московское.</p>
@@ -88,26 +84,26 @@ export function RatingAnalytics() {
         <div><dt>Количество оценок</dt><dd>{report.rating_count}</dd></div>
       </dl>
       {report.rating_count === 0 && <p role="status">За выбранный период нет оценок.</p>}
-      {report.dishes.length > 0 && <div className="analytics-scroll"><table>
+      {report.dishes.length > 0 && <ScrollArea label="Оценки по блюдам"><table>
         <caption>Оценки по блюдам</caption>
         <thead><tr><th scope="col">Блюдо</th><th scope="col">Средняя</th><th scope="col">Количество</th></tr></thead>
         <tbody>{report.dishes.map(dish => <tr key={dish.id}>
           <th scope="row"><a href={`#/dishes/${dish.id}`}>{dish.name}</a></th>
           <td>{ratingText(dish.average_rating)}</td><td>{dish.rating_count}</td>
         </tr>)}</tbody>
-      </table></div>}
+      </table></ScrollArea>}
       {report.rating_count > 0 && <div className="analytics-charts">
         <RatingChart title="Средняя оценка" points={report.timeline} group={filters.group} average />
         <RatingChart title="Количество оценок" points={report.timeline} group={filters.group} />
         <details>
           <summary>Данные графиков</summary>
-          <div className="analytics-scroll"><table>
+          <ScrollArea label="Данные графиков"><table>
             <thead><tr><th scope="col">Начало периода</th><th scope="col">Средняя</th><th scope="col">Количество</th></tr></thead>
             <tbody>{report.timeline.map(point => <tr key={point.period}>
               <th scope="row">{fullDate.format(new Date(point.period))}</th>
               <td>{ratingText(point.average_rating)}</td><td>{point.rating_count}</td>
             </tr>)}</tbody>
-          </table></div>
+          </table></ScrollArea>
         </details>
       </div>}
     </>}
@@ -121,8 +117,8 @@ function RatingChart({ title, points, group, average = false }: {
   const labels = group === "month" ? monthDate : shortDate;
   return <figure className="analytics-chart">
     <figcaption>{title}</figcaption>
-    <div className="analytics-scroll" aria-hidden="true">
-      <div className="analytics-plot">
+    <ScrollArea label={`График: ${title}`}>
+      <div className="analytics-plot" aria-hidden="true">
         {points.map(point => {
           const value = average ? point.average_rating : point.rating_count;
           const date = new Date(point.period);
@@ -137,6 +133,6 @@ function RatingChart({ title, points, group, average = false }: {
           </div>;
         })}
       </div>
-    </div>
+    </ScrollArea>
   </figure>;
 }
