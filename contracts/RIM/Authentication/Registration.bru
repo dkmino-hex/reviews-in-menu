@@ -1,0 +1,37 @@
+meta {
+  name: Registration
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseURL}}/auth/register
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "login": "testUser",
+    "name": "Test User",
+    "password": "Test123456"
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Создаёт посетителя. Повторная регистрация занятого логина вернёт 409.
+  Логин: 3–64 латинских буквы, цифры или _. Пароль: от 8 символов, до 128 байт.
+}

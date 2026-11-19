@@ -1,0 +1,43 @@
+meta {
+  name: Update Dish
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{baseURL}}/admin/dishes/{{dishId}}
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "category_id": {{categoryId}},
+    "name": "Тестовая паста",
+    "description": "Обновлённое описание",
+    "ingredients": "Паста, томаты, базилик",
+    "price": "450.00",
+    "portion": "300",
+    "unit": "g",
+    "aliases": [
+      "тестовая томатная паста"
+    ]
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  PUT передаёт полную карточку. Проверь dishId: запрос заменит данные выбранного блюда.
+}

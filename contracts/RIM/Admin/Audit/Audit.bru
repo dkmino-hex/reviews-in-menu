@@ -1,0 +1,31 @@
+meta {
+  name: Audit
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseURL}}/admin/audit?page={{page}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  page: {{page}}
+  ~entity: review
+  ~since: {{from}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  entity: review, dish, category или visitor. since: дата YYYY-MM-DD с полуночи UTC.
+  Необязательные фильтры включаются в Params.
+}

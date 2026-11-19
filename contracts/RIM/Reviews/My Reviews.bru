@@ -1,0 +1,28 @@
+meta {
+  name: My Reviews
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseURL}}/me/reviews?page={{page}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  page: {{page}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Найди нужный отзыв и перенеси id и version в reviewId и reviewVersion коллекции.
+}

@@ -1,0 +1,31 @@
+meta {
+  name: Unblock Visitor
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{baseURL}}/admin/visitors/{{visitorId}}
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "blocked": false,
+    "reason": "Ограничение снято"
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

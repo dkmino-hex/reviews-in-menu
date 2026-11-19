@@ -1,0 +1,28 @@
+meta {
+  name: RIM
+}
+
+vars:pre-request {
+  baseURL: http://localhost:8080/api/v1
+  categoryId: 1
+  dishId: 1
+  reviewId: 1
+  reviewVersion: 1
+  visitorId: 1
+  page: 1
+  from: 2026-11-01
+  to: 2026-11-19
+  group: day
+  photoKey: DEMOMENUPHOTOAAAAAAAAAAAAA.jpeg
+  photoFile: ../../backend/testdata/photos/pasta.jpeg
+}
+
+docs {
+  Запускай запросы по одному: коллекция содержит изменение, удаление и блокировку данных.
+  Общий адрес и ID находятся в Variables коллекции. Подставляй ID из ответов API.
+  Сначала выполни Authentication / Login. Авторизация использует cookie reviews_session.
+  Для Admin войди через Admin Login под своим администратором. Пароль заполни только локально.
+  Для отзывов войди посетителем. Перед изменением или модерацией возьми свежую version из списка.
+  В списках page начинается с 1, размер страницы — 20. Фильтры в Params можно включать и отключать.
+  Реальный ML пока не подключён. Тональности в ответах поступают из демонстрационных данных.
+}

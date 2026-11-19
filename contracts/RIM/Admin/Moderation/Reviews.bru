@@ -1,0 +1,28 @@
+meta {
+  name: Reviews
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseURL}}/admin/reviews?page={{page}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  page: {{page}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Возьми id и актуальную version отзыва в reviewId и reviewVersion.
+}

@@ -1,0 +1,36 @@
+meta {
+  name: Create Review
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseURL}}/dishes/{{dishId}}/reviews
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "rating": 5,
+    "body": "Вкусная паста, понравился соус."
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Только посетитель. rating: 1–5, body необязателен, максимум 3000 символов.
+  Сохрани id из ответа в reviewId. Повторный действующий отзыв на это блюдо вернёт 409.
+}

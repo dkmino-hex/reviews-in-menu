@@ -1,0 +1,20 @@
+meta {
+  name: Delete Photo
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseURL}}/admin/dishes/{{dishId}}/photo
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

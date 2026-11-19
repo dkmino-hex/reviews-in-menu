@@ -1,0 +1,33 @@
+meta {
+  name: Rating Analytics
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseURL}}/admin/rating-analytics?from={{from}}&to={{to}}&group={{group}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  from: {{from}}
+  to: {{to}}
+  group: {{group}}
+  ~category: {{categoryId}}
+  ~dish: {{dishId}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  from и to обязательны, YYYY-MM-DD, границы включительны по Москве.
+  group: day, week или month. Период до 366 дней. category и dish необязательны.
+}

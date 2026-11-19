@@ -1,0 +1,24 @@
+meta {
+  name: Dish Reviews
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseURL}}/dishes/{{dishId}}/reviews?page={{page}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  page: {{page}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
